@@ -4,7 +4,6 @@ const AccessLog = require("../models/AccessLog");
 const checkAccess = async (req, res) => {
   try {
     const { resource } = req.body;
-
     const role = req.user.role;
 
     const policy = await Policy.findOne({
@@ -13,31 +12,30 @@ const checkAccess = async (req, res) => {
     });
 
     let status = "DENIED";
+    let reason = "No matching ALLOW policy found for this role and resource.";
 
     if (policy && policy.action === "ALLOW") {
       status = "ALLOWED";
+      reason = "Matched an active ALLOW policy.";
+    } else if (policy && policy.action === "DENY") {
+      reason = "Explicit DENY policy matched.";
     }
 
-    await AccessLog.create({
+    const log = await AccessLog.create({
       userId: req.user.id,
       role,
       resource,
       status,
     });
 
-    if (status === "ALLOWED") {
-      return res.status(200).json({
-        message: "Access Granted",
-      });
-    }
-
-    return res.status(403).json({
-      message: "Access Denied",
+    return res.status(status === "ALLOWED" ? 200 : 403).json({
+      message: status === "ALLOWED" ? "Access Granted" : "Access Denied",
+      matchedPolicy: policy || null,
+      timestamp: log.createdAt,
+      reason
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 

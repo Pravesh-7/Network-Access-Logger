@@ -1,14 +1,8 @@
 const express = require("express");
-
 const router = express.Router();
-
 const { protect } = require("../middleware/authMiddleware");
+const { getDashboardStats } = require("../controllers/dashboardController");
 
-router.get("/dashboard", protect, (req, res) => {
-  res.json({
-    message: "Welcome to Secure Dashboard",
-    user: req.user,
-  });
-});
+router.get("/dashboard", protect, getDashboardStats);
 
 module.exports = router;

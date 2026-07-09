@@ -106,26 +106,35 @@ const AccessLogs = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User / Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Details</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client Info</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {logs.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">No logs found.</td>
+                    <td colSpan="5" className="px-6 py-8 text-center text-gray-500">No logs found.</td>
                   </tr>
                 ) : (
                   logs.map((log) => (
                     <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {new Date(log.createdAt).toLocaleString()}
+                        {log.responseTime !== undefined && <div className="text-xs text-gray-400 mt-1">{log.responseTime}ms</div>}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{log.userId?.username || 'Unknown'}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">{log.role}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-mono">{log.resource}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-white font-mono">{log.resource}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 font-bold">{log.action || 'GET'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-white">{log.browser || 'Unknown'} / {log.os || 'Unknown'}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{log.ipAddress || 'Unknown IP'}</div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           log.status === 'ALLOWED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'

@@ -8,10 +8,13 @@ const accessLogSchema = new mongoose.Schema(
     },
 
     role: String,
-
     resource: String,
-
+    action: String,
     status: String,
+    browser: String,
+    os: String,
+    ipAddress: String,
+    responseTime: Number,
   },
   {
     timestamps: true,

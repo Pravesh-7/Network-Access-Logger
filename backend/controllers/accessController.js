@@ -1,9 +1,11 @@
 const Policy = require("../models/Policy");
 const AccessLog = require("../models/AccessLog");
+const UAParser = require("ua-parser-js");
 
 const checkAccess = async (req, res) => {
+  const startTime = Date.now();
   try {
-    const { resource } = req.body;
+    const { resource, action = "GET" } = req.body;
     const role = req.user.role;
 
     const policy = await Policy.findOne({
@@ -21,11 +23,22 @@ const checkAccess = async (req, res) => {
       reason = "Explicit DENY policy matched.";
     }
 
+    const parser = new UAParser(req.headers["user-agent"]);
+    const browser = parser.getBrowser().name || "Unknown";
+    const os = parser.getOS().name || "Unknown";
+    const ipAddress = req.ip || req.connection.remoteAddress || "Unknown";
+    const responseTime = Date.now() - startTime;
+
     const log = await AccessLog.create({
       userId: req.user.id,
       role,
       resource,
+      action,
       status,
+      browser,
+      os,
+      ipAddress,
+      responseTime
     });
 
     return res.status(status === "ALLOWED" ? 200 : 403).json({

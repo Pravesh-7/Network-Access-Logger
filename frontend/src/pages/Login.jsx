@@ -1,49 +1,109 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
+import { FiShield } from "react-icons/fi";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    // If already logged in, redirect to dashboard
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
     try {
       const data = await loginUser(email, password);
-
       localStorage.setItem("token", data.token);
-
-      alert("Login Successful");
+      navigate("/dashboard");
     } catch (error) {
-      alert(
-        error.response?.data?.message || "Login Failed"
-      );
+      setError(error.response?.data?.message || "Login Failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 dark:bg-[#16171d]">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center text-primary text-5xl">
+          <FiShield />
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          Sign in to your account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          Network Access Logger & Policy Simulator
+        </p>
+      </div>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100 dark:border-gray-700">
+          <form className="space-y-6" onSubmit={handleLogin}>
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4">
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+              </div>
+            )}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
 
-      <br /><br />
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <br /><br />
-
-      <button onClick={handleLogin}>
-        Login
-      </button>
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors ${
+                  isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

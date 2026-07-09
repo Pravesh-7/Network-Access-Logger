@@ -41,6 +41,43 @@ const checkAccess = async (req, res) => {
   }
 };
 
+const getLogs = async (req, res) => {
+  try {
+    const { status, role, resource, date, page = 1, limit = 10, sort = 'desc' } = req.query;
+    let query = {};
+    if (status) query.status = status;
+    if (role) query.role = role;
+    if (resource) query.resource = { $regex: resource, $options: "i" };
+    if (date) {
+      const startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    const sortOrder = sort === 'asc' ? 1 : -1;
+
+    const logs = await AccessLog.find(query)
+      .populate("userId", "username email")
+      .sort({ createdAt: sortOrder })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+    const total = await AccessLog.countDocuments(query);
+
+    res.status(200).json({
+      logs,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   checkAccess,
+  getLogs,
 };

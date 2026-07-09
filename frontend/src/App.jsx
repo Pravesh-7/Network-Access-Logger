@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Policies from './pages/Policies';
+import AccessLogs from './pages/AccessLogs';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="policies" element={<Policies />} />
+          <Route path="logs" element={<AccessLogs />} />
           {/* More routes will be added here */}
         </Route>
       </Route>

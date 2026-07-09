@@ -1,17 +1,22 @@
 import { Link, useLocation } from 'react-router-dom';
 import { FiHome, FiShield, FiFileText, FiActivity, FiSettings } from 'react-icons/fi';
+import { getUserFromToken } from '../utils/auth';
 
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const user = getUserFromToken();
+  const role = user?.role || 'Guest';
 
-  const links = [
-    { name: 'Dashboard', path: '/dashboard', icon: <FiHome className="mr-3 text-lg" /> },
-    { name: 'Policies', path: '/dashboard/policies', icon: <FiShield className="mr-3 text-lg" /> },
-    { name: 'Access Logs', path: '/dashboard/logs', icon: <FiFileText className="mr-3 text-lg" /> },
-    { name: 'Simulator', path: '/dashboard/simulator', icon: <FiActivity className="mr-3 text-lg" /> },
-    { name: 'Settings', path: '/dashboard/settings', icon: <FiSettings className="mr-3 text-lg" /> },
+  const allLinks = [
+    { name: 'Dashboard', path: '/dashboard', icon: <FiHome className="mr-3 text-lg" />, roles: ['Admin', 'Security Analyst'] },
+    { name: 'Policies', path: '/dashboard/policies', icon: <FiShield className="mr-3 text-lg" />, roles: ['Admin', 'Security Analyst'] },
+    { name: 'Access Logs', path: '/dashboard/logs', icon: <FiFileText className="mr-3 text-lg" />, roles: ['Admin', 'Security Analyst'] },
+    { name: 'Simulator', path: '/dashboard/simulator', icon: <FiActivity className="mr-3 text-lg" />, roles: ['Admin', 'Security Analyst', 'Employee'] },
+    { name: 'Settings', path: '/dashboard/settings', icon: <FiSettings className="mr-3 text-lg" />, roles: ['Admin'] },
   ];
+
+  const links = allLinks.filter(link => link.roles.includes(role));
 
   return (
     <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col h-screen shadow-xl hidden md:flex">

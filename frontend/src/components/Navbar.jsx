@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { FiLogOut, FiUser, FiBell } from 'react-icons/fi';
+import { getUserFromToken } from '../utils/auth';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const user = getUserFromToken();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -20,10 +22,12 @@ const Navbar = () => {
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-            <FiUser />
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold uppercase">
+            {user?.role ? user.role.charAt(0) : <FiUser />}
           </div>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-200 hidden sm:block">Admin User</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200 hidden sm:block">
+            {user?.role || 'User'}
+          </span>
         </div>
         <button 
           onClick={handleLogout}

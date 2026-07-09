@@ -7,15 +7,15 @@ const {
   updatePolicy,
   deletePolicy,
 } = require("../controllers/policyController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, authorize } = require("../middleware/authMiddleware");
 
 router.route("/")
-  .post(protect, createPolicy)
-  .get(protect, getPolicies);
+  .post(protect, authorize("Admin"), createPolicy)
+  .get(protect, authorize("Admin", "Security Analyst"), getPolicies);
 
 router.route("/:id")
-  .get(protect, getPolicyById)
-  .put(protect, updatePolicy)
-  .delete(protect, deletePolicy);
+  .get(protect, authorize("Admin", "Security Analyst"), getPolicyById)
+  .put(protect, authorize("Admin"), updatePolicy)
+  .delete(protect, authorize("Admin"), deletePolicy);
 
 module.exports = router;
